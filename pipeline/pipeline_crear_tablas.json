@@ -1,0 +1,37 @@
+{
+	"name": "pipeline_crear_tablas",
+	"properties": {
+		"activities": [
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "CREATE TABLE [dim_tipo] (\n  [id_tipo] integer PRIMARY KEY,\n  [tipo] char\n);\n\n\nCREATE TABLE [dim_origen] (\n  [id_origen] integer PRIMARY KEY,\n  [numero_origen] nvarchar(255)\n);\n\n\nCREATE TABLE [dim_destino] (\n  [id_destino] integer PRIMARY KEY,\n  [numero_destino] nvarchar(255)\n);\n\n\nCREATE TABLE [dim_fecha] (\n  [id_fecha] integer PRIMARY KEY,\n  [fecha] date,\n  [año] integer,\n  [mes] integer,\n  [dia] integer,\n  [mes_texto] nvarchar(255)\n);\n\n\nCREATE TABLE [dim_hora] (\n  [id_hora] integer PRIMARY KEY,\n  [hora] time,\n  [hora12] integer,\n  [hora24] integer\n);\n\n\nCREATE TABLE [hechos_llamadas] (\n  [id_llamada] integer PRIMARY KEY,\n  [duracion] integer,\n  [id_tipo] integer,\n  [id_origen] integer,\n  [id_destino] integer,\n  [id_fecha] integer,\n  [id_hora] integer\n);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_tipo]) REFERENCES [dim_tipo] ([id_tipo]);\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_origen]) REFERENCES [dim_origen] ([id_origen]);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_destino]) REFERENCES [dim_destino] ([id_destino]);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_fecha]) REFERENCES [dim_fecha] ([id_fecha]);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_hora]) REFERENCES [dim_hora] ([id_hora]);\n\n"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"folder": {
+			"name": "nivel 0"
+		},
+		"annotations": []
+	}
+}
