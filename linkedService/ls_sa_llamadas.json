@@ -1,0 +1,12 @@
+{
+	"name": "ls_sa_llamadas",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": "DefaultEndpointsProtocol=https;AccountName=sallamadastigo4654658;EndpointSuffix=core.windows.net;",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQENGNDg5Q0FCLTk3ODAtNDBGQy04NkRBLUE1NDkxNzlEMEUwQV83Y2U0YjY5Ni1hMGM4LTQ4ZmItYWUwOS0wMTk3MWZjNDYzNWMiDQp9"
+		}
+	}
+}
