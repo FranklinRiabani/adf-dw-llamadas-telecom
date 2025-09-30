@@ -1,0 +1,234 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-ucb-dw-llamadas-4654654243"
+		},
+		"ls_sa_llamadas_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"connectionString\"de \"ls_sa_llamadas\""
+		},
+		"ls_sql_dw_llamadas_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_sql_dw_llamadas\""
+		},
+		"ls_sql_dw_llamadas_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-ucb-dw-llamadas-47465658.database.windows.net"
+		},
+		"ls_sql_dw_llamadas_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "dw_llamadas"
+		},
+		"ls_sql_dw_llamadas_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "franklin"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_crear_tablas')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Script1",
+						"type": "Script",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "ls_sql_dw_llamadas",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "NonQuery",
+									"text": "CREATE TABLE [dim_tipo] (\n  [id_tipo] integer PRIMARY KEY identity(1,1),\n  [tipo] char\n);\n\n\nCREATE TABLE [dim_origen] (\n  [id_origen] integer PRIMARY KEY identity(1,1),\n  [numero_origen] nvarchar(255)\n);\n\n\nCREATE TABLE [dim_destino] (\n  [id_destino] integer PRIMARY KEY identity(1,1),\n  [numero_destino] nvarchar(255)\n);\n\n\nCREATE TABLE [dim_fecha] (\n  [id_fecha] integer PRIMARY KEY identity(1,1),\n  [fecha] date,\n  [año] integer,\n  [mes] integer,\n  [dia] integer,\n  [mes_texto] nvarchar(255)\n);\n\n\nCREATE TABLE [dim_hora] (\n  [id_hora] integer PRIMARY KEY identity(1,1),\n  [hora] time,\n  [hora12] integer,\n  [hora24] integer\n);\n\n\nCREATE TABLE [hechos_llamadas] (\n  [id_llamada] integer PRIMARY KEY identity(1,1),\n  [duracion] integer,\n  [id_tipo] integer,\n  [id_origen] integer,\n  [id_destino] integer,\n  [id_fecha] integer,\n  [id_hora] integer\n);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_tipo]) REFERENCES [dim_tipo] ([id_tipo]);\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_origen]) REFERENCES [dim_origen] ([id_origen]);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_destino]) REFERENCES [dim_destino] ([id_destino]);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_fecha]) REFERENCES [dim_fecha] ([id_fecha]);\n\n\nALTER TABLE [hechos_llamadas] ADD FOREIGN KEY ([id_hora]) REFERENCES [dim_hora] ([id_hora]);\n\n"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "nivel 0"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/llamadas_tigo_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sa_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "raw"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "detalle-llamadas-tigo.csv",
+						"container": "bronze"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "DESCRIPCION",
+						"type": "String"
+					},
+					{
+						"name": "TIPO",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO_ORIGEN",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO_DESTINO",
+						"type": "String"
+					},
+					{
+						"name": "FECHA",
+						"type": "String"
+					},
+					{
+						"name": "HORA",
+						"type": "String"
+					},
+					{
+						"name": "DURACION",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sa_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/llamadas_tigo_xlsx')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sa_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "raw"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Table 1",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "detalle-llamadas-tigo.xlsx",
+						"container": "bronze"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "DESCRIPCION",
+						"type": "String"
+					},
+					{
+						"name": "TIPO",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO_ORIGEN",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO_DESTINO",
+						"type": "String"
+					},
+					{
+						"name": "FECHA",
+						"type": "String"
+					},
+					{
+						"name": "HORA",
+						"type": "String"
+					},
+					{
+						"name": "DURACION",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sa_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sa_llamadas')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_sa_llamadas_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sql_dw_llamadas')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_sql_dw_llamadas_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sql_dw_llamadas_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sql_dw_llamadas_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sql_dw_llamadas_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-ucb-dw-llamadas-4654654243"
+		},
+		"ls_sa_llamadas_connectionString": {
+			"value": ""
+		},
+		"ls_sql_dw_llamadas_password": {
+			"value": ""
+		},
+		"ls_sql_dw_llamadas_properties_typeProperties_server": {
+			"value": "sql-ucb-dw-llamadas-47465658.database.windows.net"
+		},
+		"ls_sql_dw_llamadas_properties_typeProperties_database": {
+			"value": "dw_llamadas"
+		},
+		"ls_sql_dw_llamadas_properties_typeProperties_userName": {
+			"value": "franklin"
+		}
+	}
+}
