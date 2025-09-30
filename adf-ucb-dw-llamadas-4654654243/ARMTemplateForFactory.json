@@ -229,6 +229,266 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dim_tipo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id_tipo",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "tipo",
+						"type": "char"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dim_tipo"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dim_origen')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id_origen",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "numero_origen",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dim_origen"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dim_destino')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id_destino",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "numero_destino",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dim_destino"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dim_fecha')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id_fecha",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "fecha",
+						"type": "date"
+					},
+					{
+						"name": "año",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "mes",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "dia",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "mes_texto",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dim_fecha"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dim_hora')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id_hora",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "hora",
+						"type": "time",
+						"scale": 7
+					},
+					{
+						"name": "hora12",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "hora24",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dim_hora"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_llamadas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_hechos_llamadas')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_llamadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DW"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id_llamada",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "duracion",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "id_tipo",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "id_origen",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "id_destino",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "id_fecha",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "id_hora",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "hechos_llamadas"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_llamadas')]"
+			]
 		}
 	]
 }
