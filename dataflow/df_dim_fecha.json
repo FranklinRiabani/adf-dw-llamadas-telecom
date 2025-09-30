@@ -1,0 +1,91 @@
+{
+	"name": "df_dim_fecha",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "llamadas_tigo_csv",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_dim_fecha",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "cast1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          DESCRIPCION as string,",
+				"          TIPO as string,",
+				"          NUMERO_ORIGEN as string,",
+				"          NUMERO_DESTINO as string,",
+				"          FECHA as string,",
+				"          HORA as string,",
+				"          DURACION as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 select(mapColumn(",
+				"          FECHA",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 derive(FECHA = iifNull(FECHA,\"01/01/2000\",FECHA)) ~> derivedColumn1",
+				"derivedColumn1 derive(FECHA = trim(FECHA)) ~> derivedColumn2",
+				"derivedColumn2 aggregate(groupBy(FECHA),",
+				"     each(match(name!=\"FECHA\"), $$ = first($$))) ~> aggregate1",
+				"aggregate1 cast(output(",
+				"          FECHA as date 'dd/MM/yyyy'",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_fecha as integer,",
+				"          fecha as date,",
+				"          {año} as integer,",
+				"          mes as integer,",
+				"          dia as integer,",
+				"          mes_texto as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          fecha = FECHA",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
