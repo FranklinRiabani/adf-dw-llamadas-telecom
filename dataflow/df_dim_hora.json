@@ -1,0 +1,89 @@
+{
+	"name": "df_dim_hora",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "llamadas_tigo_csv",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_dim_hora",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "cast1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          DESCRIPCION as string,",
+				"          TIPO as string,",
+				"          NUMERO_ORIGEN as string,",
+				"          NUMERO_DESTINO as string,",
+				"          FECHA as string,",
+				"          HORA as string,",
+				"          DURACION as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 select(mapColumn(",
+				"          HORA",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 derive(HORA = iifNull(HORA, \"00:00:01\", HORA)) ~> derivedColumn1",
+				"derivedColumn1 derive(HORA = trim(HORA)) ~> derivedColumn2",
+				"derivedColumn2 aggregate(groupBy(HORA),",
+				"     each(match(name!=\"HORA\"), $$ = first($$))) ~> aggregate1",
+				"aggregate1 cast(output(",
+				"          HORA as timestamp 'HH:mm:ss'",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_hora as integer,",
+				"          hora as timestamp,",
+				"          hora12 as integer,",
+				"          hora24 as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          hora = HORA",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
