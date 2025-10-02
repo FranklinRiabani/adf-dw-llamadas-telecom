@@ -17,12 +17,84 @@
 						"type": "DatasetReference"
 					},
 					"name": "dimTipo"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_dim_origen",
+						"type": "DatasetReference"
+					},
+					"name": "dimOrigen"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_dim_destino",
+						"type": "DatasetReference"
+					},
+					"name": "dimDestino"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_dim_fecha",
+						"type": "DatasetReference"
+					},
+					"name": "dimFecha"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_dim_hora",
+						"type": "DatasetReference"
+					},
+					"name": "dimHora"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_hechos_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "lookup1"
+				},
+				{
+					"name": "lookup2"
+				},
+				{
+					"name": "lookup3"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "lookup4"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "lookup5"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "select3"
+				},
+				{
+					"name": "cast1"
 				}
 			],
 			"scriptLines": [
@@ -46,10 +118,126 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> dimTipo",
+				"source(output(",
+				"          id_origen as integer,",
+				"          numero_origen as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimOrigen",
+				"source(output(",
+				"          id_destino as integer,",
+				"          numero_destino as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimDestino",
+				"source(output(",
+				"          id_fecha as integer,",
+				"          fecha as date,",
+				"          fecha_texto as string,",
+				"          {año} as integer,",
+				"          mes as integer,",
+				"          dia as integer,",
+				"          mes_texto as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimFecha",
+				"source(output(",
+				"          id_hora as integer,",
+				"          hora as timestamp,",
+				"          hora_texto as string,",
+				"          hora12 as integer,",
+				"          hora24 as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimHora",
 				"source1, dimTipo lookup(source1@TIPO == dimTipo@tipo,",
 				"     multiple: false,",
 				"     pickup: 'any',",
-				"     broadcast: 'auto')~> lookup1"
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1, dimOrigen lookup(source1@NUMERO_ORIGEN == dimOrigen@numero_origen,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup2",
+				"lookup2, dimDestino lookup(source1@NUMERO_DESTINO == dimDestino@numero_destino,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup3",
+				"dimFecha select(mapColumn(",
+				"          id_fecha,",
+				"          fecha,",
+				"          fecha_texto",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 derive(fecha_texto = trim(fecha_texto)) ~> derivedColumn1",
+				"lookup3 derive(FECHA = trim(FECHA),",
+				"          HORA = trim(HORA)) ~> derivedColumn2",
+				"derivedColumn2, derivedColumn1 lookup(derivedColumn2@FECHA == fecha_texto,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup4",
+				"dimHora select(mapColumn(",
+				"          id_hora,",
+				"          hora,",
+				"          hora_texto",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 derive(hora_texto = trim(hora_texto)) ~> derivedColumn3",
+				"lookup4, derivedColumn3 lookup(derivedColumn2@HORA == hora_texto,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup5",
+				"lookup5 filter(!isNull(id_hora)) ~> filter1",
+				"filter1 select(mapColumn(",
+				"          DURACION,",
+				"          id_tipo,",
+				"          id_origen,",
+				"          id_destino,",
+				"          id_fecha,",
+				"          id_hora",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"select3 cast(output(",
+				"          DURACION as integer",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"cast1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_llamada as integer,",
+				"          duracion as integer,",
+				"          id_tipo as integer,",
+				"          id_origen as integer,",
+				"          id_destino as integer,",
+				"          id_fecha as integer,",
+				"          id_hora as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          duracion = DURACION,",
+				"          id_tipo,",
+				"          id_origen,",
+				"          id_destino,",
+				"          id_fecha,",
+				"          id_hora",
+				"     )) ~> sink1"
 			]
 		}
 	}

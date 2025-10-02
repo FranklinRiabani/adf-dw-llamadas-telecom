@@ -57,7 +57,8 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
 				"select1 derive(FECHA = iifNull(FECHA,\"01/01/2000\",FECHA)) ~> derivedColumn1",
-				"derivedColumn1 derive(FECHA = trim(FECHA)) ~> derivedColumn2",
+				"derivedColumn1 derive(FECHA = trim(FECHA),",
+				"          FECHA_TEXTO = FECHA) ~> derivedColumn2",
 				"derivedColumn2 aggregate(groupBy(FECHA),",
 				"     each(match(name!=\"FECHA\"), $$ = first($$))) ~> aggregate1",
 				"aggregate1 cast(output(",
@@ -84,7 +85,8 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
-				"          fecha = FECHA",
+				"          fecha = FECHA,",
+				"          fecha_texto = FECHA_TEXTO",
 				"     )) ~> sink1"
 			]
 		}
