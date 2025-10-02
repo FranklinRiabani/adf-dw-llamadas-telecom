@@ -69,6 +69,7 @@
 				"     input(",
 				"          id_hora as integer,",
 				"          hora as timestamp,",
+				"          hora_texto as string,",
 				"          hora12 as integer,",
 				"          hora24 as integer",
 				"     ),",

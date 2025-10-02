@@ -21,6 +21,10 @@
 				"type": "date"
 			},
 			{
+				"name": "fecha_texto",
+				"type": "nvarchar"
+			},
+			{
 				"name": "año",
 				"type": "int",
 				"precision": 10

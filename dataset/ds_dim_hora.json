@@ -22,6 +22,10 @@
 				"scale": 7
 			},
 			{
+				"name": "hora_texto",
+				"type": "nvarchar"
+			},
+			{
 				"name": "hora12",
 				"type": "int",
 				"precision": 10
